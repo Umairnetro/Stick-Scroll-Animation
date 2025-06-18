@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scroll Image Fade</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+        width: 100%;
+      }
+
+      .container {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+      }
+
+      .container.section-1 {
+        background-color: #c8f1ff7d;
+      }
+      .container.section-2 {
+        background-color: #ff9191a3;
+      }
+      .container.section-3 {
+        background-color: #ffe6b3;
+      }
+
+      .image-stack {
+        position: sticky;
+        top: 0;
+        width: 50%;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 400px;
+        /* overflow: hidden; */
+      }
+      .image-stack img {
+        width: 100%;
+        object-fit: cover;
+        opacity: 0;
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        transition: opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1;
+        pointer-events: none;
+      }
+      .image-stack img.active {
+        opacity: 1;
+        z-index: 2;
+      }
+
+      .content-container {
+        width: 50%;
+        min-height: 100vh;
+        display: flex;
+        gap: 5rem;
+        flex-direction: column;
+        justify-content: center;
+        padding: 2rem;
+        margin-block: 100px;
+      }
+      .con {
+        border-radius: 8px;
+        padding: 2rem;
+      }
+
+      /* Centering content */
+      .con {
+        display: flex;
+        align-items: center;
+        min-height: 40vh;
+      }
+
+      .con-inner {
+        width: 100%;
+      }
+
+      .con-inner h1 {
+        font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+          "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+        font-size: 3rem;
+        margin-bottom: 5px;
+      }
+
+      .con-inner p {
+        font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
+          sans-serif;
+        font-size: 1.2rem;
+        line-height: 1.3;
+        color: #333;
+        margin-bottom: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <!-- Sticky Image Stack -->
+      <aside class="image-stack">
+        <img
+          src="first.avif"
+          class="fade-img active"
+          alt="Scroll Fade Image 1"
+          data-img="1"
+        />
+        <img
+          src="second.avif"
+          class="fade-img"
+          alt="Scroll Fade Image 2"
+          data-img="2"
+        />
+        <img
+          src="third.avif"
+          class="fade-img"
+          alt="Scroll Fade Image 3"
+          data-img="3"
+        />
+      </aside>
+
+      <section class="content-container">
+        <!-- First para -->
+        <article class="con" data-section="1">
+          <div class="con-inner">
+            <h1>First Section</h1>
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fuga
+              voluptates praesentium dolor officiis veniam placeat quaerat
+              recusandae. Dolor perspiciatis sunt voluptas. Iure tempora labore
+              voluptate. Tenetur illo esse, veritatis officia reprehenderit
+              animi saepe illum officiis corporis ut non velit obcaecati. Iusto
+              excepturi, nulla aperiam quasi odit atque illo consequatur
+              perspiciatis?
+            </p>
+          </div>
+        </article>
+        <!-- Second para -->
+        <article class="con" data-section="2">
+          <div class="con-inner">
+            <h1>Second Section</h1>
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fuga
+              voluptates praesentium dolor officiis veniam placeat quaerat
+              recusandae. Dolor perspiciatis sunt voluptas. Iure tempora labore
+              voluptate. Tenetur illo esse, veritatis officia reprehenderit
+              animi saepe illum officiis corporis ut non velit obcaecati. Iusto
+              excepturi, nulla aperiam quasi odit atque illo consequatur
+              perspiciatis?
+            </p>
+          </div>
+        </article>
+        <!-- Third para -->
+        <article class="con" data-section="3">
+          <div class="con-inner">
+            <h1>Third Section</h1>
+            <p>
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fuga
+              voluptates praesentium dolor officiis veniam placeat quaerat
+              recusandae. Dolor perspiciatis sunt voluptas. Iure tempora labore
+              voluptate. Tenetur illo esse, veritatis officia reprehenderit
+              animi saepe illum officiis corporis ut non velit obcaecati. Iusto
+              excepturi, nulla aperiam quasi odit atque illo consequatur
+              perspiciatis?
+            </p>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      // Improved fade and switch images based on section in view
+      const images = document.querySelectorAll(".fade-img");
+      const sections = document.querySelectorAll(".con");
+      const container = document.querySelector('.container');
+      let ticking = false;
+
+      function updateActiveImage() {
+        let current = 1;
+        const viewportCenter = window.innerHeight / 2;
+        let minDistance = Infinity;
+
+        sections.forEach((section, idx) => {
+          const rect = section.getBoundingClientRect();
+          const sectionCenter = rect.top + rect.height / 2;
+          const distance = Math.abs(sectionCenter - viewportCenter);
+
+          // Only consider sections that are at least partially in view
+          if (rect.bottom > 0 && rect.top < window.innerHeight) {
+            if (distance < minDistance) {
+              minDistance = distance;
+              current = idx + 1;
+            }
+          }
+        });
+
+        // Update active image
+        images.forEach((img) => {
+          const imgIndex = parseInt(img.dataset.img);
+          if (imgIndex === current) {
+            img.classList.add("active");
+          } else {
+            img.classList.remove("active");
+          }
+        });
+
+        // Update container background color
+        container.classList.remove('section-1', 'section-2', 'section-3');
+        container.classList.add(`section-${current}`);
+
+        ticking = false;
+      }
+
+      function onScroll() {
+        if (!ticking) {
+          requestAnimationFrame(updateActiveImage);
+          ticking = true;
+        }
+      }
+
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("DOMContentLoaded", updateActiveImage);
+      window.addEventListener("resize", updateActiveImage);
+    </script>
+  </body>
+</html>
